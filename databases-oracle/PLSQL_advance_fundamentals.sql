@@ -268,3 +268,100 @@ BEGIN
     END IF;
 END; 
 /
+
+
+-- Practice TEST PLSQL BLOCK, CURSOR, ROWTYPE, IF, LOOP, INPUT FROM USER;
+DECLARE 
+    inputSalary NUMBER:= &cc_salary;
+    customers_rec customers%rowtype;
+    CURSOR customers_cursor IS 
+    SELECT * FROM customers;
+BEGIN 
+    OPEN customers_cursor;
+    LOOP 
+        FETCH customers_cursor INTO customers_rec;
+        EXIT WHEN customers_cursor%notfound;
+        
+        IF(customers_rec.salary > inputSalary) THEN 
+            DBMS_OUTPUT.PUT_LINE(customers_rec.id || ' ' || customers_rec.name || ' ' || customers_rec.address || ' ' || customers_rec.salary);
+        ELSE 
+            DBMS_OUTPUT.PUT_LINE(customers_rec.id || ' ' || customers_rec.name || ' I want a salary increase ');
+        END IF;
+    END LOOP;
+    CLOSE customers_cursor; 
+END;
+/
+-- Practice TEST PROCEDURE, CALL PROCEDURE, PLSQL BLOCK, CURSOR, ROWTYPE, IF, LOOP, INPUT FROM USER;
+CREATE OR REPLACE PROCEDURE users_with_salary(salary IN NUMBER) IS
+BEGIN 
+    DECLARE 
+        inputSalary NUMBER:= salary;
+        customers_rec customers%rowtype;
+        CURSOR customers_cursor IS 
+        SELECT * FROM customers;
+    BEGIN 
+        OPEN customers_cursor;
+        LOOP 
+            FETCH customers_cursor INTO customers_rec;
+            EXIT WHEN customers_cursor%notfound;
+            
+            IF(customers_rec.salary > inputSalary) THEN 
+                DBMS_OUTPUT.PUT_LINE(customers_rec.id || ' ' || customers_rec.name || ' ' || customers_rec.address || ' ' || customers_rec.salary);
+            ELSE 
+                DBMS_OUTPUT.PUT_LINE(customers_rec.id || ' ' || customers_rec.name || ' I want a salary increase ');
+            END IF;
+        END LOOP;
+        CLOSE customers_cursor;    
+    END;
+END;
+/
+DECLARE 
+    inputSalary NUMBER:= &cc_salary;
+BEGIN 
+    users_with_salary(inputSalary);
+END;
+/
+
+-- Practice TEST FUNCTION, CALL FUNCTION, PLSQL BLOCK, CURSOR, ROWTYPE, IF, LOOP, INPUT FROM USER;
+CREATE OR REPLACE FUNCTION number_of_customers(salary IN NUMBER) 
+RETURN NUMBER 
+IS
+    total_customers NUMBER; 
+BEGIN 
+    DECLARE 
+        TYPE namesarray IS VARRAY(9) OF customers.name%type;
+        names namesarray := namesarray();
+        
+        inputSalary NUMBER:= salary;
+        customers_rec customers%rowtype;
+        CURSOR customers_cursor IS 
+        SELECT * FROM customers;
+    BEGIN 
+        SELECT COUNT(1) INTO total_customers
+        FROM customers;
+        
+        OPEN customers_cursor;
+        LOOP 
+            FETCH customers_cursor INTO customers_rec;
+            EXIT WHEN customers_cursor%notfound;
+            
+            IF(customers_rec.salary > inputSalary) THEN 
+                DBMS_OUTPUT.PUT_LINE(customers_rec.id || ' ' || customers_rec.name || ' ' || customers_rec.address || ' ' || customers_rec.salary);
+            ELSE 
+                DBMS_OUTPUT.PUT_LINE(customers_rec.id || ' ' || customers_rec.name || ' I want a salary increase ');
+            END IF;
+        END LOOP;
+        CLOSE customers_cursor;  
+        RETURN total_customers;
+    END;
+END;
+/
+
+DECLARE 
+    total NUMBER(10);
+    inputSalary NUMBER:= &cc_salary;
+BEGIN 
+    total := number_of_customers(inputSalary);
+    DBMS_OUTPUT.PUT_LINE('Total of Customers: ' || total);
+END; 
+/

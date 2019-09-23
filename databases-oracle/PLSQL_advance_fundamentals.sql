@@ -7,7 +7,8 @@ END cust_sal;
 -- Package Body
 CREATE OR REPLACE PACKAGE BODY cust_sal AS
     
-    PROCEDURE find_sal(c_id customers.id%type) IS c_sal customers.salary%type;
+    PROCEDURE find_sal(c_id customers.id%type) IS 
+        c_sal customers.salary%type;
     BEGIN 
         SELECT salary INTO c_sal 
         FROM customers
@@ -293,8 +294,6 @@ END;
 /
 -- Practice TEST PROCEDURE, CALL PROCEDURE, PLSQL BLOCK, CURSOR, ROWTYPE, IF, LOOP, INPUT FROM USER;
 CREATE OR REPLACE PROCEDURE users_with_salary(salary IN NUMBER) IS
-BEGIN 
-    DECLARE 
         inputSalary NUMBER:= salary;
         customers_rec customers%rowtype;
         CURSOR customers_cursor IS 
@@ -313,8 +312,8 @@ BEGIN
         END LOOP;
         CLOSE customers_cursor;    
     END;
-END;
 /
+
 DECLARE 
     inputSalary NUMBER:= &cc_salary;
 BEGIN 
@@ -365,3 +364,25 @@ BEGIN
     DBMS_OUTPUT.PUT_LINE('Total of Customers: ' || total);
 END; 
 /
+
+
+-- TEST Trigger 
+CREATE OR REPLACE TRIGGER display_salary_customer
+BEFORE DELETE OR INSERT OR UPDATE ON customers
+FOR EACH ROW
+WHEN (NEW.ID > 0)
+DECLARE 
+    sal_diff number;
+BEGIN 
+    sal_diff:= :NEW.salary - :OLD.salary; 
+    dbms_output.put_line('Old salary: ' || :OLD.salary); 
+    dbms_output.put_line('New salary: ' || :NEW.salary); 
+    dbms_output.put_line('Salary difference: ' || sal_diff);
+END;
+/
+
+INSERT INTO customers VALUES(12, 'Miguel', 22, 'Oracle', 7500.00);
+
+UPDATE customers 
+SET name = 'Miguel Alvarado', salary = salary + 1000
+WHERE ID = 11;
